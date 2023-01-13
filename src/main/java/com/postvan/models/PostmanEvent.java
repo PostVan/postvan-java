@@ -1,4 +1,4 @@
-package models;
+package com.postvan.models;
 
 import lombok.Data;
 
