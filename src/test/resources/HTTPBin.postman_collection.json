@@ -1,0 +1,27 @@
+{
+	"info": {
+		"_postman_id": "0b4e3206-e199-46d9-b066-e195087198f5",
+		"name": "HTTPBin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Basic Get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://httpbin.org/get",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"get"
+					]
+				}
+			}
+		}
+	]
+}
