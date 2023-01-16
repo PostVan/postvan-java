@@ -2,22 +2,23 @@ package com.postvan;
 
 import com.postvan.defaults.ApacheHttpClientImpl;
 import com.postvan.defaults.ApacheHttpTransformerImpl;
-import com.postvan.models.PostmanCollection;
-import com.postvan.models.PostmanRequest;
-import com.postvan.models.PostvanHttpClient;
-import com.postvan.models.PostvanRequestTransformer;
+import com.postvan.models.*;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
-public class Postvan<HttpResponse> {
+public class Postvan<HttpResponse> implements Closeable {
     private PostvanHttpClient httpClient;
     private PostvanRequestTransformer transformer;
 
-    public static Postvan<org.apache.http.HttpResponse> defaultInstance() {
+    public static Postvan<PostVanHttpResponse> defaultInstance() {
         val httpClient = constructApacheClient();
         val transformer = constructApacheTransformer();
         return new Postvan<>(httpClient, transformer);
@@ -28,7 +29,10 @@ public class Postvan<HttpResponse> {
     }
 
     private static PostvanHttpClient constructApacheClient() {
-        return new ApacheHttpClientImpl();
+        val client = HttpClientBuilder.create()
+                .setMaxConnTotal(5)
+                .build();
+        return new ApacheHttpClientImpl(client);
     }
 
     public HttpResponse runRequest(final PostmanRequest postmanRequest) {
@@ -40,6 +44,8 @@ public class Postvan<HttpResponse> {
                 return (HttpResponse) httpClient.post(args);
             case PUT:
                 return (HttpResponse) httpClient.put(args);
+            case PATCH:
+                return (HttpResponse) httpClient.patch(args);
             case DELETE:
                 return (HttpResponse) httpClient.delete(args);
             case HEAD:
@@ -60,5 +66,10 @@ public class Postvan<HttpResponse> {
             responses.add(this.runRequest(request));
         }
         return responses;
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.httpClient.close();
     }
 }

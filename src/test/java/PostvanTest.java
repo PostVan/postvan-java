@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PostvanTest {
 
@@ -30,13 +31,12 @@ class PostvanTest {
     void testRun() throws Exception {
         val collectionStr = IOUtils.resourceToString("/HTTPBin.postman_collection.json", StandardCharsets.UTF_8);
         val collection = mapper.readValue(collectionStr, PostmanCollection.class);
-        val instance = Postvan.defaultInstance();
-        val responses = instance.runCollection(collection);
-        assertNotNull(responses);
-        for (val response: responses) {
-            try (val stream = response.getEntity().getContent()) {
-                val streamContent = IOUtils.toString(stream, StandardCharsets.UTF_8);
-                System.out.println(streamContent);
+        try (val instance = Postvan.defaultInstance()) {
+            val responses = instance.runCollection(collection);
+            assertNotNull(responses);
+            for (val response : responses) {
+                assertTrue(response.getStatusCode() == 200);
+                System.out.println(response.getResponseBody());
             }
         }
     }

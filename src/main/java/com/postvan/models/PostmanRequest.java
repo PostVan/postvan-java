@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class PostmanRequest extends RuntimeSafePOJO {
-    public HttpMethod method;
-    public PostmanUrl url;
+    private HttpMethod method;
+    private PostmanUrl url;
+    private PostmanAuth auth;
 }
