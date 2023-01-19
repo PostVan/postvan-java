@@ -53,7 +53,6 @@ public class ApacheHttpTransformerImpl implements PostvanRequestTransformer<Http
                     if (userName.isPresent() && password.isPresent()) {
                         val basicAuth = Base64.getEncoder().encodeToString(StringUtils.getBytesUtf8(String.format("%s:%s", userName.get(), password.get())));
                         val headerValue = String.format("Basic %s", basicAuth);
-                        System.out.println(headerValue);
                         httpGet.setHeader(new BasicHeader("Authorization", headerValue));
                     }
                     break;
@@ -64,7 +63,6 @@ public class ApacheHttpTransformerImpl implements PostvanRequestTransformer<Http
                             .findAny();
                     if (token.isPresent()) {
                         val headerValue = String.format("Bearer %s", token.get());
-                        System.out.println(headerValue);
                         httpGet.setHeader(new BasicHeader("Authorization", headerValue));
                     }
                     break;
