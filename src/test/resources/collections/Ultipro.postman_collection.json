@@ -1,0 +1,133 @@
+{
+	"info": {
+		"_postman_id": "7196d930-c42f-40c5-be46-d509cab32aa6",
+		"name": "Ultipro",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27969529",
+		"_collection_link": "https://actabl.postman.co/workspace/Data-Integrations~aed90e78-b729-4784-869a-73b2dfd9d637/collection/27969529-7196d930-c42f-40c5-be46-d509cab32aa6?action=share&creator=27969529&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "UKG - Schedule Export",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"Schedules\": [\n    {\n      \"Date\": \"4/19/2024\",\n      \"EmployeeId\": \"000100911-LRU02\",\n      \"MealMinutes\": \"0\",\n      \"Org1\": \"Not_an_ORG\",\n      \"PaycodeId\": \"0\",\n      \"PaycodeCode\": \"WKHR\"\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https:/{{service_url}}/UtmRestServices/PMHS/ScheduleImport?AuthGUID={{auth_guid}}",
+					"host": [
+						"https"
+					],
+					"port": "",
+					"path": [
+						"{{service_url}}",
+						"UtmRestServices",
+						"PMHS",
+						"ScheduleImport"
+					],
+					"query": [
+						{
+							"key": "AuthGUID",
+							"value": "{{auth_guid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Schedules",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{service_url}}/UtmOdataServices/api/OrgLevel1",
+					"protocol": "https",
+					"host": [
+						"{{service_url}}"
+					],
+					"path": [
+						"UtmOdataServices",
+						"api",
+						"OrgLevel1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API Metadata",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{service_url}}/UtmOdataServices/api/$metadata#Schedule",
+					"protocol": "https",
+					"host": [
+						"{{service_url}}"
+					],
+					"path": [
+						"UtmOdataServices",
+						"api",
+						"$metadata"
+					],
+					"hash": "Schedule"
+				}
+			},
+			"response": []
+		}
+	]
+}
