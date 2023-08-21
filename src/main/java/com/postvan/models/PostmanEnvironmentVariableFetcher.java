@@ -2,8 +2,8 @@ package com.postvan.models;
 
 import java.util.List;
 
-public interface PostmanEnvironmentVariableFetcher<PostmanEnvironment> {
+public interface PostmanEnvironmentVariableFetcher<PostmanEnvironmentValues> {
     String replacer(final String valueToReplace);
     String revealer(final String secretToReveal);
-    PostmanEnvironment getSelf();
+    PostmanEnvironmentValues getValues();
 }

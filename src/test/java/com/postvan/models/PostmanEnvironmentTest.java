@@ -21,7 +21,7 @@ class PostmanEnvironmentTest {
         val value = new PostmanEnvironmentVariable();
         value.setKey("service_url");
         value.setValue("test.ukg.com");
-        val postmanEnvironment = new PostmanEnvironment();
+        val postmanEnvironment = PostmanEnvironment.getInstance();
         postmanEnvironment.setValues(Collections.singletonList(value));
         val newValue = postmanEnvironment.replacer("https://{{service_url}}/UtmOdataServices/api/OrgLevel1");
         assertEquals("https://test.ukg.com/UtmOdataServices/api/OrgLevel1", newValue);
@@ -33,7 +33,7 @@ class PostmanEnvironmentTest {
         val value = new PostmanEnvironmentVariable();
         value.setKey("service_url");
         value.setValue("test.ukg.com");
-        val postmanEnvironment = new PostmanEnvironment();
+        val postmanEnvironment = PostmanEnvironment.getInstance();
         postmanEnvironment.setValues(Collections.singletonList(value));
         val newValue = postmanEnvironment.replacer("https://{{service_endpoint}}/UtmOdataServices/api/OrgLevel1");
         assertEquals("https://{{service_endpoint}}/UtmOdataServices/api/OrgLevel1", newValue);

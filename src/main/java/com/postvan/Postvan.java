@@ -11,17 +11,20 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @AllArgsConstructor
 public class Postvan<HttpResponse> implements Closeable {
     private PostvanHttpClient httpClient;
     private PostvanRequestTransformer transformer;
+    private PostmanEnvironment postmanEnvironment;
 
     public static Postvan<PostVanHttpResponse> defaultInstance() {
         val httpClient = constructApacheClient();
         val transformer = constructApacheTransformer();
-        return new Postvan<>(httpClient, transformer);
+        val postVanEnv = PostmanEnvironment.getInstance();
+        return new Postvan<>(httpClient, transformer, postVanEnv);
     }
 
     private static PostvanRequestTransformer constructApacheTransformer() {
@@ -66,6 +69,14 @@ public class Postvan<HttpResponse> implements Closeable {
             responses.add(this.runRequest(request));
         }
         return responses;
+    }
+
+    public void addEnvironmentVariable(final PostmanEnvironmentVariable environmentVariable) {
+        this.postmanEnvironment.getValues().add(environmentVariable);
+    }
+
+    public void addEnvironmentVariables(final PostmanEnvironmentVariable ...environmentVariable) {
+        this.postmanEnvironment.getValues().addAll(Arrays.asList(environmentVariable));
     }
 
     @Override

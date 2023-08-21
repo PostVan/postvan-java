@@ -13,7 +13,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 public class ApacheHttpTransformerImpl implements PostvanRequestTransformer<HttpUriRequest> {
-    final PostmanEnvironment defaultEnvironment = new PostmanEnvironment();
+    final PostmanEnvironment defaultEnvironment = PostmanEnvironment.getInstance();
     @Override
     public HttpUriRequest transform(final PostmanRequest request) {
         val method = request.getMethod();

@@ -8,57 +8,6 @@
 	},
 	"item": [
 		{
-			"name": "UKG - Schedule Export",
-			"request": {
-				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "{{password}}",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "{{username}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"Schedules\": [\n    {\n      \"Date\": \"4/19/2024\",\n      \"EmployeeId\": \"000100911-LRU02\",\n      \"MealMinutes\": \"0\",\n      \"Org1\": \"Not_an_ORG\",\n      \"PaycodeId\": \"0\",\n      \"PaycodeCode\": \"WKHR\"\n    }\n  ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https:/{{service_url}}/UtmRestServices/PMHS/ScheduleImport?AuthGUID={{auth_guid}}",
-					"host": [
-						"https"
-					],
-					"port": "",
-					"path": [
-						"{{service_url}}",
-						"UtmRestServices",
-						"PMHS",
-						"ScheduleImport"
-					],
-					"query": [
-						{
-							"key": "AuthGUID",
-							"value": "{{auth_guid}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get Schedules",
 			"request": {
 				"auth": {

@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @RequiredArgsConstructor
@@ -19,9 +21,11 @@ public class PostmanEnvironment extends RuntimeSafePOJO {
     private List<PostmanEnvironmentVariable> values;
     @ToString.Exclude
     private final PostmanEnvironmentVariableFetcher fetcher;
+    private static PostmanEnvironment instance = null;
 
-    public PostmanEnvironment() {
+    private PostmanEnvironment() {
         this.fetcher = new PostmanEnvironmentVariableFetcherImpl(this);
+        this.values = new ArrayList<>();
     }
 
     public String replacer(final String valueToReplace) {
@@ -30,6 +34,13 @@ public class PostmanEnvironment extends RuntimeSafePOJO {
 
     public String revealer(final String secretToReveal) {
         return fetcher.revealer(secretToReveal);
+    }
+
+    public static PostmanEnvironment getInstance() {
+        if (Objects.isNull(instance)) {
+            instance = new PostmanEnvironment();
+        }
+        return instance;
     }
 }
 
