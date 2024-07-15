@@ -3,7 +3,7 @@ package com.postvan.models;
 import java.io.Closeable;
 import java.io.IOException;
 
-public interface PostvanHttpClient<HttpRequestArgs, HttpResponse> extends Closeable {
+public interface PostvanHttpClient<HttpRequestArgs, HttpResponse> {
     HttpResponse get(final HttpRequestArgs arguments);
 
     HttpResponse post(final HttpRequestArgs arguments);

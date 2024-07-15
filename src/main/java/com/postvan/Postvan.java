@@ -1,60 +1,45 @@
 package com.postvan;
 
-import com.postvan.defaults.ApacheHttpClientImpl;
-import com.postvan.defaults.ApacheHttpTransformerImpl;
+import com.postvan.defaults.HttpClientImpl;
 import com.postvan.models.*;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
 
-import java.io.Closeable;
-import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
-public class Postvan<HttpResponse> implements Closeable {
-    private PostvanHttpClient httpClient;
-    private PostvanRequestTransformer transformer;
+public class Postvan<HttpRequestArgs, HttpResponse> implements AutoCloseable {
+    private PostvanHttpClient<HttpRequestArgs, HttpResponse> httpClient;
+    private PostvanRequestTransformer<HttpRequestArgs> transformer;
 
-    public static Postvan<PostVanHttpResponse> defaultInstance() {
-        val httpClient = constructApacheClient();
-        val transformer = constructApacheTransformer();
+    public static Postvan<HttpRequest, PostVanHttpResponse> defaultInstance() {
+        val httpClient = constructHttpClient();
+        val transformer = constructHttpImplTransformer();
         return new Postvan<>(httpClient, transformer);
     }
 
-    private static PostvanRequestTransformer constructApacheTransformer() {
-        return new ApacheHttpTransformerImpl();
+    private static PostvanRequestTransformer<HttpRequest> constructHttpImplTransformer() {
+        return HttpClientImpl.getTransformer();
     }
 
-    private static PostvanHttpClient constructApacheClient() {
-        val client = HttpClientBuilder.create()
-                .setMaxConnTotal(5)
-                .build();
-        return new ApacheHttpClientImpl(client);
+    private static PostvanHttpClient<HttpRequest, PostVanHttpResponse> constructHttpClient() {
+        return new HttpClientImpl();
     }
 
     public HttpResponse runRequest(final PostmanRequest postmanRequest) {
         val args = transformer.transform(postmanRequest);
-        switch (postmanRequest.getMethod()) {
-            case GET:
-                return (HttpResponse) httpClient.get(args);
-            case POST:
-                return (HttpResponse) httpClient.post(args);
-            case PUT:
-                return (HttpResponse) httpClient.put(args);
-            case PATCH:
-                return (HttpResponse) httpClient.patch(args);
-            case DELETE:
-                return (HttpResponse) httpClient.delete(args);
-            case HEAD:
-                return (HttpResponse) httpClient.head(args);
-            case OPTIONS:
-                return (HttpResponse) httpClient.options(args);
-            default:
-                throw new IllegalArgumentException("Cannot find HTTP method!");
-        }
+        return switch (postmanRequest.getMethod()) {
+            case GET -> httpClient.get(args);
+            case POST -> httpClient.post(args);
+            case PUT -> httpClient.put(args);
+            case PATCH -> httpClient.patch(args);
+            case DELETE -> httpClient.delete(args);
+            case HEAD -> httpClient.head(args);
+            case OPTIONS -> httpClient.options(args);
+            default -> throw new IllegalArgumentException("Cannot find HTTP method!");
+        };
     }
 
     public List<HttpResponse> runCollection(final PostmanCollection collection) {
@@ -69,7 +54,7 @@ public class Postvan<HttpResponse> implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
-        this.httpClient.close();
+    public void close() throws Exception {
+        // TODO: Implement
     }
 }

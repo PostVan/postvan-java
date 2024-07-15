@@ -5,10 +5,10 @@ import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PostvanTest {
 
@@ -35,7 +35,7 @@ class PostvanTest {
             val responses = instance.runCollection(collection);
             assertNotNull(responses);
             for (val response : responses) {
-                assertTrue(response.getStatusCode() == 200);
+                assertEquals(200, response.getStatusCode());
                 System.out.println(response.getResponseBody());
             }
         }
