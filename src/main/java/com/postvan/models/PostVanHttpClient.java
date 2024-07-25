@@ -1,9 +1,6 @@
 package com.postvan.models;
 
-import java.io.Closeable;
-import java.io.IOException;
-
-public interface PostvanHttpClient<HttpRequestArgs, HttpResponse> {
+public interface PostVanHttpClient<HttpRequestArgs, HttpResponse> {
     HttpResponse get(final HttpRequestArgs arguments);
 
     HttpResponse post(final HttpRequestArgs arguments);

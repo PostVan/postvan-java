@@ -1,5 +1,6 @@
 package com.postvan.models;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.postvan.models.base.PostmanBase;
 import lombok.Data;
 
@@ -14,5 +15,4 @@ public class PostmanItem extends PostmanBase {
     private PostmanRequest request;
     private List<PostmanResponse> response;
     private Map<String, Object> protocolProfileBehavior;
-
 }

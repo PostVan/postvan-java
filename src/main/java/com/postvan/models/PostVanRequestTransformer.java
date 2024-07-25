@@ -1,6 +1,6 @@
 package com.postvan.models;
 
 @FunctionalInterface
-public interface PostvanRequestTransformer<OutputRequest> {
+public interface PostVanRequestTransformer<OutputRequest> {
     OutputRequest transform(final PostmanRequest request);
 }
