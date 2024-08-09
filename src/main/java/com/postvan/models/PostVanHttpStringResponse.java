@@ -25,4 +25,11 @@ public class PostVanHttpStringResponse extends PostVanHttpResponse<String> {
     public String getNext(String key) {
         return null;
     }
+
+    @Override
+    public Long getCount(String key) {
+        throw new IllegalArgumentException("Not implemented.");
+    }
+
+
 }

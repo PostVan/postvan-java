@@ -13,6 +13,7 @@ public class PostVanHttpResponseFactory {
         return switch (responseType.body().getClass().getCanonicalName()) {
             case "java.lang.String" -> new PostVanHttpStringResponse(responseType.statusCode(), (String) responseType.body());
             case "com.fasterxml.jackson.databind.node.ObjectNode" -> new PostVanHttpJacksonResponse(responseType.statusCode(), (JsonNode) responseType.body());
+            case "com.fasterxml.jackson.databind.node.MissingNode" -> new PostVanHttpJacksonResponse(responseType.statusCode(), null);
             default -> throw new IllegalArgumentException(String.format("No default factory available for classname: %s", responseType.body().getClass().getCanonicalName()));
         };
     }

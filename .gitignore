@@ -160,3 +160,6 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,java,maven
+
+# ignore certs since we can regenerate with a script.
+src/test/resources/certs/*

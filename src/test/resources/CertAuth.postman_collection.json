@@ -1,0 +1,40 @@
+{
+  "info": {
+    "_postman_id": "9f916953-7919-46aa-93ab-1373eeb3f0cc",
+    "name": "CertAuth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "25541843",
+    "$_extensions": {
+      "certificates": {
+        "https://certauth.cryptomix.com": {
+          "secretKeyPath": "<REPLACE_ME_WITH_PROJECT_PATH>/src/test/resources/certs/client1-key.pem",
+          "certificatePath": "<REPLACE_ME_WITH_PROJECT_PATH>/src/test/resources/certs/client1-crt.pem",
+          "secretKeyPassphrase": "test123"
+        }
+      }
+    }
+  },
+  "item": [
+    {
+      "name": "Test Certificates",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://certauth.cryptomix.com/json/",
+          "protocol": "https",
+          "host": [
+            "certauth",
+            "cryptomix",
+            "com"
+          ],
+          "path": [
+            "json",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

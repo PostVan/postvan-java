@@ -13,4 +13,6 @@ public abstract class PostVanHttpResponse<ResponseType> {
     public abstract boolean hasNext(final String key);
 
     public abstract String getNext(final String key);
+
+    public abstract Long getCount(final String key);
 }

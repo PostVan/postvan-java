@@ -3,8 +3,10 @@ package com.postvan.models;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.postvan.models.base.RuntimeSafePOJO;
 import lombok.Data;
+import lombok.val;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class PostmanRequest extends RuntimeSafePOJO implements Cloneable {
@@ -14,7 +16,7 @@ public class PostmanRequest extends RuntimeSafePOJO implements Cloneable {
     @JsonAlias("header")
     private List<PostmanHeader> headers;
     @JsonAlias("$_extensions")
-    private PostmanSchemaExtension extension;
+    private PostmanRequestSchemaExtension extension;
 
     @Override
     public PostmanRequest clone() {
@@ -29,5 +31,12 @@ public class PostmanRequest extends RuntimeSafePOJO implements Cloneable {
         } catch (final CloneNotSupportedException ex) {
             throw new AssertionError();
         }
+    }
+
+    public void setQueryParametersFromMap(final Map<String, String> queryParams) {
+        queryParams.forEach((key, value) -> {
+            val queryParam = new PostManQueryParameter(key, value);
+            this.url.addQueryParameter(queryParam);
+        });
     }
 }

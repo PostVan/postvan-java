@@ -1,5 +1,7 @@
 package com.postvan.models;
 
+import java.util.Map;
+
 public interface PostVanHttpClient<HttpRequestArgs, HttpResponse> {
     HttpResponse get(final HttpRequestArgs arguments);
 
@@ -14,4 +16,6 @@ public interface PostVanHttpClient<HttpRequestArgs, HttpResponse> {
     HttpResponse options(final HttpRequestArgs arguments);
 
     HttpResponse patch(final HttpRequestArgs args);
+
+    void insertHttpsConfiguration(Map<String, PostVanCertificateProperties> sslInfo);
 }

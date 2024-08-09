@@ -1,14 +1,20 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.postvan.PostVan;
+import com.postvan.models.PostVanHttpJacksonResponse;
 import com.postvan.models.PostmanCollection;
+
 import lombok.val;
-import org.apache.commons.io.IOUtils;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,29 +32,47 @@ class PostvanTest {
     @ParameterizedTest
     @MethodSource("getListOfCollections")
     void testDeserialize(final String fileName) throws Exception {
-        val collectionStr = IOUtils.resourceToString(fileName, StandardCharsets.UTF_8);
+        val collectionStr = getStringFromResourceFile(fileName);
         val collection = mapper.readValue(collectionStr, PostmanCollection.class);
         assertNotNull(collection);
     }
 
     @ParameterizedTest
     @MethodSource("getListOfCollections")
-    void testRuns(final String fileName) throws Exception {
-        val collectionStr = IOUtils.resourceToString(fileName, StandardCharsets.UTF_8);
-        val collection = mapper.readValue(collectionStr, PostmanCollection.class);
+    void testRuns(final String fileName, final List<Consumer<List<PostVanHttpJacksonResponse>>> assertions) throws Exception {
+        val collectionStr = getStringFromResourceFile(fileName);
+        val newCollectionStr = collectionStr.replaceAll("<REPLACE_ME_WITH_PROJECT_PATH>", System.getProperty("user.dir"));
+        val collection = mapper.readValue(newCollectionStr, PostmanCollection.class);
         val instance = PostVan.defaultJacksonInstance();
         val responses = instance.runCollection(collection);
         assertNotNull(responses);
-        for (val response : responses) {
-            assertEquals(200, response.getStatusCode());
-            System.out.println(response.getResponseBody());
-        }
+        assertions.forEach((eater) -> eater.accept(responses)); // waka waka waka, lol
+    }
+
+    private String getStringFromResourceFile(final String fileName) throws Exception {
+        val sourceDir = System.getProperty("user.dir");
+        val testResourceDir = "/src/test/resources/";
+        return Files.readString(Paths.get(sourceDir + testResourceDir + fileName), StandardCharsets.UTF_8);
     }
 
     public static Stream<Arguments> getListOfCollections() {
-        return Stream.of(
-                Arguments.of("/HTTPBin.postman_collection.json"),
-                Arguments.of("/PokeAPI.postman_collection.json")
+        return Stream.of(Arguments.of("/HTTPBin.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
+                    assertEquals(200, response.getStatusCode());
+                    System.out.println(response.getResponseBody());
+                }))), Arguments.of("/PokeAPI.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
+                    assertEquals(200, response.getStatusCode());
+                    System.out.println(response.getResponseBody());
+                }))), Arguments.of("/PokeAPI_CountPagination.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
+                    assertEquals(200, response.getStatusCode());
+                    System.out.println(response.getResponseBody());
+                }))), Arguments.of("/CertAuth.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
+                    assertEquals(200, response.getStatusCode());
+                    System.out.println(response.getResponseBody());
+                }))),
+                Arguments.of("/CertAuth_PFX.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
+                    assertEquals(200, response.getStatusCode());
+                    System.out.println(response.getResponseBody());
+                })))
         );
     }
 }

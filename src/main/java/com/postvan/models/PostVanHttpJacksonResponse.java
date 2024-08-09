@@ -20,7 +20,7 @@ public class PostVanHttpJacksonResponse extends PostVanHttpResponse<JsonNode> {
     public boolean hasNext(final String key) {
         try {
             return responseBody.has(key) &&
-                    !responseBody.get("next").isNull() &&
+                    !responseBody.get(key).isNull() &&
                     Objects.nonNull(responseBody.get(key)) &&
                     !Objects.equals(responseBody.get(key).asText(), "");
         } catch (final NullPointerException ex) {
@@ -38,4 +38,15 @@ public class PostVanHttpJacksonResponse extends PostVanHttpResponse<JsonNode> {
             throw new RuntimeException(ex);
         }
     }
+
+    @Override
+    public Long getCount(final String key) {
+        try {
+            return responseBody.get(key).asLong();
+        } catch (final Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+
 }
