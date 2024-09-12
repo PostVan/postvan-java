@@ -1,16 +1,14 @@
 package com.postvan;
 
 import com.postvan.defaults.HttpClientImpl;
+import com.postvan.defaults.JavetScriptRunner;
 import com.postvan.defaults.PostVanResponseBodyToJsonNode;
 import com.postvan.models.*;
 import lombok.AllArgsConstructor;
 import lombok.val;
 
 import java.net.http.HttpRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AllArgsConstructor
 public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse> {
@@ -50,7 +48,8 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
     }
 
 
-    public List<PostVanHttpRes> runRequest(final PostmanRequest postmanRequest) {
+    public List<PostVanHttpRes> runRequest(final PostmanItem postmanItem) {
+        val postmanRequest = postmanItem.getRequest();
         val args = requestTransformer.transform(postmanRequest);
         if (postmanRequest.getExtension() != null) {
             if (postmanRequest.getExtension().getPagination() != null) {
@@ -59,6 +58,14 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
         }
         final var singleResponse = runSingleRequest(postmanRequest, args);
         return Collections.singletonList(singleResponse);
+    }
+
+    private void runPreRequestEvents(final List<PostmanEvent> events) {
+        final var results = events.stream()
+                .map(PostmanEvent::getScript)
+                .map(PostmanScript::getExec)
+                .map(JavetScriptRunner::runTestScript)
+                .toList();
     }
 
     private PostVanHttpRes runSingleRequest(final PostmanRequest postmanRequest, final HttpRequestArgs args) {
@@ -128,6 +135,9 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
     public List<PostVanHttpRes> runCollection(final PostmanCollection collection) {
         val responses = new ArrayList<PostVanHttpRes>();
         val info = collection.getInfo();
+        if (collection.getEvents() != null) {
+            runPreRequestEvents(collection.getEvents().stream().filter(event -> Objects.equals(event.getListen(), "prerequest")).toList());
+        }
         if (info.getExtensions() != null) {
             if (info.getExtensions().getCertificates() != null && !info.getExtensions().getCertificates().isEmpty()) {
                 this.httpClient.insertHttpsConfiguration(info.getExtensions().getCertificates());
@@ -136,8 +146,7 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
         val items = collection.getItem();
         for (val item :
                 items) {
-            val request = item.getRequest();
-            responses.addAll(this.runRequest(request));
+            responses.addAll(this.runRequest(item));
         }
         return responses;
     }

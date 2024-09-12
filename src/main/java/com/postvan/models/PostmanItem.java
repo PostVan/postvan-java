@@ -11,7 +11,8 @@ import java.util.Map;
 public class PostmanItem extends PostmanBase {
     private PostmanDescription description;
     private List<PostmanVariable> variable;
-    private List<PostmanEvent> event;
+    @JsonAlias({"event"})
+    private List<PostmanEvent> events;
     private PostmanRequest request;
     private List<PostmanResponse> response;
     private Map<String, Object> protocolProfileBehavior;

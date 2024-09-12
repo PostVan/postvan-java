@@ -1,15 +1,34 @@
 {
 	"info": {
-		"_postman_id": "0b4e3206-e199-46d9-b066-e195087198f5",
+		"_postman_id": "53dab0cd-5268-4a18-8611-d7766d4c1ca5",
 		"name": "HTTPBin",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"$_extensions": {
-			"certificates": {}
-		}
+		"_exporter_id": "25541843"
 	},
 	"item": [
 		{
 			"name": "Basic Get",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Should accept all mime types\", () => {",
+							"    pm.expect(pm.response.json().headers[\"Accept\"]).to.equal(\"*/*\");",
+							"    pm.expect().throw();",
+							"});",
+							"",
+							"pm.test(\"Should have a host of httpbin.org\", () => {",
+							"    pm.expect(pm.response.json().headers[\"Host\"]).to.eq(\"httpbin.org\")",
+							"});",
+							"",
+							"pm.collectionVariables.set(\"amzn_trace_id\", pm.response.json().headers[\"X-Amzn-Trace-Id\"]);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -22,6 +41,51 @@
 					],
 					"path": [
 						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Echo back request ID from variable",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();",
+							"pm.test(\"should have request ID from previous request\", () => {",
+							"    pm.expect(responseJson).to.not.be.undefined;",
+							"    pm.expect(responseJson.form.amzn_trace_id).to.not.be.undefined;",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "amzn_trace_id",
+							"value": "{{amzn_trace_id}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
 					]
 				}
 			},
@@ -167,6 +231,426 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "POST form data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"form-data\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json()[\"form\"][\"test\"]).to.equal(\"a-value\");",
+							"    pm.expect(pm.response.json()[\"form\"][\"testb\"]).to.equal(\"b-value\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "test",
+							"value": "a-value",
+							"description": "This is a value!",
+							"type": "text"
+						},
+						{
+							"key": "testb",
+							"value": "b-value",
+							"description": "This is another value!",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST x-www-form-urlencoded data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"x-www-form-urlencoded\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json()[\"form\"][\"test\"]).to.equal(\"a-value\");",
+							"    pm.expect(pm.response.json()[\"form\"][\"testb\"]).to.equal(\"b-value\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "test",
+							"value": "a-value",
+							"description": "This is a value!",
+							"type": "text"
+						},
+						{
+							"key": "testb",
+							"value": "b-value",
+							"description": "This is the second value! B is the second letter of the alphabet!",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST raw text data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"text/plain\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json().data).to.equal(\"This is a raw test!\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "This is a raw test!"
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST raw js data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"application/javascript\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json().data).to.equal(\"const something = \\\"Bob\\\";\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "const something = \"Bob\";",
+					"options": {
+						"raw": {
+							"language": "javascript"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST raw json data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json().data).to.equal(\"{\\n    \\\"jason\\\": \\\"JAAAAAYSSSSSSOOONNNN!!!!\\\"\\n}\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"jason\": \"JAAAAAYSSSSSSOOONNNN!!!!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST raw html data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"text/html\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json().data).to.equal(\"<h1>Hello World!</h1>\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<h1>Hello World!</h1>",
+					"options": {
+						"raw": {
+							"language": "html"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST raw xml data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"application/xml\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json().data).to.equal(\"<h1>Hello World!</h1>\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<h1>Hello World!</h1>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST binary data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"    pm.expect(pm.response.json().headers[\"Content-Type\"]).to.contain(\"application/zip\");",
+							"});",
+							"",
+							"pm.test(\"Has form data\", function() {",
+							"    pm.expect(pm.response.json().data).to.contain(\"data:application/octet-stream;base64\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.variables.set(\"boon\", \"doggle\");"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "null",
+			"value": ""
+		},
+		{
+			"key": "amzn_trace_id",
+			"value": ""
 		}
 	]
 }

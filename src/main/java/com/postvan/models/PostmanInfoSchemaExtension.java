@@ -14,7 +14,9 @@ public class PostmanInfoSchemaExtension extends RuntimeSafePOJO {
     private Map<String, PostVanCertificateProperties> certificates = new HashMap<>();
 
     private void addCertificateInfo(final String url, final PostVanCertificateProperties certificateProperties) {
-        assert url.startsWith("https://");
+        if (!url.startsWith("https://"))  {
+            throw new IllegalArgumentException("Expected HTTPS scheme!");
+        }
         this.certificates.put(url, certificateProperties);
     }
 
