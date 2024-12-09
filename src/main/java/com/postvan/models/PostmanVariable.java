@@ -5,4 +5,8 @@ import lombok.Data;
 
 @Data
 public class PostmanVariable extends PostmanBase {
+    private String key;
+    private Object value;
+    private String description;
+    private boolean disabled;
 }

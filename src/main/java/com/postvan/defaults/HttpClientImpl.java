@@ -1,5 +1,6 @@
 package com.postvan.defaults;
 
+import com.postvan.Utils;
 import com.postvan.models.*;
 import com.postvan.models.base.PostmanValue;
 import lombok.extern.log4j.Log4j2;
@@ -17,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.KeyStore;
-import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -160,10 +160,12 @@ public class HttpClientImpl<ResponseType> implements PostVanHttpClient<HttpReque
     }
 
     public static PostVanRequestTransformer<HttpRequest> getTransformer() {
-        return (postmanRequest) -> {
+        return (postmanRequest, postmanVariablePool) -> {
             var httpRequestBuilder = HttpRequest.newBuilder();
             val method = postmanRequest.getMethod();
-            var url = URI.create(postmanRequest.getUrl().getRaw());
+            var url = URI.create(
+                    Utils.replaceVariables(postmanRequest.getUrl().getRaw(), postmanVariablePool)
+            );
             httpRequestBuilder = switch (method) {
                 case GET -> httpRequestBuilder.GET();
                 case POST -> httpRequestBuilder.POST(HttpRequest.BodyPublishers.noBody());
@@ -193,14 +195,14 @@ public class HttpClientImpl<ResponseType> implements PostVanHttpClient<HttpReque
                         .filter(Predicate.not(PostmanHeader::isDisabled))
                         .toList();
                 for (val header : httpHeaders) {
-                    httpRequestBuilder.setHeader(header.getKey(), header.getValue());
+                    httpRequestBuilder.setHeader(header.getKey(), Utils.replaceVariables(header.getValue(), postmanVariablePool));
                 }
             }
             val queryParameters = postmanRequest.getUrl().getQueryParameters();
             if (!queryParameters.isEmpty()) {
                 val queryStr = queryParameters.values().stream()
                         .filter(Predicate.not(PostManQueryParameter::isDisabled))
-                        .map(parameter -> "%s=%s".formatted(parameter.getKey(), parameter.getValue()))
+                        .map(parameter -> "%s=%s".formatted(parameter.getKey(), Utils.replaceVariables(parameter.getValue(), postmanVariablePool)))
                         .collect(Collectors.joining("&"));
                 try {
                     url = new URI(url.getScheme(), url.getAuthority(), url.getPath(), queryStr, url.getFragment());

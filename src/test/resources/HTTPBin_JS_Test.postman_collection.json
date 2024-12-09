@@ -1,0 +1,145 @@
+{
+  "info": {
+    "_postman_id": "18aee12e-09d3-45d2-8bfa-fceb6ff852ed",
+    "name": "HTTPBin JS Test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "25541843"
+  },
+  "item": [
+    {
+      "name": "Get Environment Variable",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"username\", pm.response.json().args.username);",
+              "pm.collectionVariables.set(\"password\", pm.response.json().args.password);"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.unset(\"username\");",
+              "pm.collectionVariables.unset(\"password\");"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://httpbin.org/get?username=burt&password=reynolds",
+          "protocol": "https",
+          "host": [
+            "httpbin",
+            "org"
+          ],
+          "path": [
+            "get"
+          ],
+          "query": [
+            {
+              "key": "username",
+              "value": "burt"
+            },
+            {
+              "key": "password",
+              "value": "reynolds"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth With environment variable",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const resJson = pm.response.json();",
+              "pm.test('should be authenticated', () => pm.expect(resJson.authenticated).to.eq(true));",
+              "pm.test('should be authenticated', () => pm.expect(resJson.user).to.eq('burt'));"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{password}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "{{username}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://httpbin.org/basic-auth/{{username}}/{{password}}",
+          "protocol": "https",
+          "host": [
+            "httpbin",
+            "org"
+          ],
+          "path": [
+            "basic-auth",
+            "{{username}}",
+            "{{password}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "username",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    }
+  ]
+}

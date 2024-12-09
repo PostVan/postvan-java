@@ -1,9 +1,13 @@
 package com.postvan;
 
+import com.postvan.models.PostmanVariablePool;
+import lombok.val;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Utils {
     public static String readStringFromResource(final String resourcePath) {
@@ -17,5 +21,11 @@ public class Utils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String replaceVariables(final String preReplaced, final PostmanVariablePool postmanVariablePool) {
+        val postmanVariablePattern = Pattern.compile("\\{\\{(\\w+)\\}\\}");
+        val matcher = postmanVariablePattern.matcher(preReplaced);
+        return matcher.replaceAll(result -> postmanVariablePool.computeIfAbsent(result.group().replace("{{", "").replace("}}", ""), result::group));
     }
 }

@@ -14,6 +14,7 @@ import java.util.*;
 public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse> {
     private PostVanHttpClient<HttpRequestArgs, PostVanHttpRes> httpClient;
     private PostVanRequestTransformer<HttpRequestArgs> requestTransformer;
+    private static final PostmanVariablePool postmanVariablePool = new PostmanVariablePool();
 
     public static PostVan<HttpRequest, PostVanHttpStringResponse> defaultInstance() {
         val httpClient = constructHttpClient();
@@ -50,26 +51,34 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
 
     public List<PostVanHttpRes> runRequest(final PostmanItem postmanItem) {
         val postmanRequest = postmanItem.getRequest();
-        val args = requestTransformer.transform(postmanRequest);
+        val args = requestTransformer.transform(postmanRequest, postmanVariablePool);
+        val eventsList = Objects.nonNull(postmanItem.getEvents()) && !postmanItem.getEvents().isEmpty() ? postmanItem.getEvents() : Collections.<PostmanEvent>emptyList();
         if (postmanRequest.getExtension() != null) {
             if (postmanRequest.getExtension().getPagination() != null) {
-                return runPaginatedRequest(postmanRequest);
+                return runPaginatedRequest(postmanItem);
             }
         }
-        final var singleResponse = runSingleRequest(postmanRequest, args);
+        final var singleResponse = runSingleRequest(postmanRequest, args, eventsList);
         return Collections.singletonList(singleResponse);
     }
 
     private void runPreRequestEvents(final List<PostmanEvent> events) {
-        final var results = events.stream()
+        events.stream()
                 .map(PostmanEvent::getScript)
                 .map(PostmanScript::getExec)
-                .map(JavetScriptRunner::runTestScript)
-                .toList();
+                .forEach(script -> JavetScriptRunner.runPreRequestScript(script, postmanVariablePool));
     }
 
-    private PostVanHttpRes runSingleRequest(final PostmanRequest postmanRequest, final HttpRequestArgs args) {
-        return switch (postmanRequest.getMethod()) {
+    private PostVanTestResults runPostRequestEvents(final List<PostmanEvent> events, final PostVanHttpResponse httpResponse) {
+        return events.stream()
+                .map(PostmanEvent::getScript)
+                .map(PostmanScript::getExec)
+                .map(script -> JavetScriptRunner.runTestScript(script, postmanVariablePool, httpResponse))
+                .findAny().orElseGet(() -> new PostVanTestResults(0, 0, 0));
+    }
+
+    private PostVanHttpRes runSingleRequest(final PostmanRequest postmanRequest, final HttpRequestArgs args, final List<PostmanEvent> events) {
+        val response = switch (postmanRequest.getMethod()) {
             case GET -> httpClient.get(args);
             case POST -> httpClient.post(args);
             case PUT -> httpClient.put(args);
@@ -79,26 +88,34 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
             case OPTIONS -> httpClient.options(args);
             default -> throw new IllegalArgumentException("Cannot find HTTP method!");
         };
+        // TODO: report results of test.
+        val testResults = runPostRequestEvents(events, response);
+        return response;
     }
 
     private PostVanHttpClient<HttpRequestArgs, PostVanHttpRes> constructHttpsClientWithContext(final PostmanRequestSchemaExtension extension) {
         return null;
     }
 
-    private List<PostVanHttpRes> runPaginatedRequest(final PostmanRequest postmanRequest) {
-        var req = postmanRequest;
+    private List<PostVanHttpRes> runPaginatedRequest(final PostmanItem postmanItem) {
+        var req = postmanItem.getRequest();
         val pagination = req.getExtension().getPagination();
-        val transformedRequest = requestTransformer.transform(req);
-        var res = runSingleRequest(req, transformedRequest);
+        val transformedRequest = requestTransformer.transform(req, postmanVariablePool);
         val listOfResponses = new ArrayList<PostVanHttpRes>();
+        val hasEvents = postmanItem.getEvents() != null && !postmanItem.getEvents().isEmpty();
+        val eventsList = hasEvents ? postmanItem.getEvents() : Collections.<PostmanEvent>emptyList();
+        var res = runSingleRequest(req, transformedRequest, eventsList);
         listOfResponses.add(res);
         if (pagination.getNextProperty() != null) {
             while (res.hasNext(pagination.getNextProperty())) {
                 req = buildNextRequest(req, res.getNext(pagination.getNextProperty()));
-                val nextTransformed = requestTransformer.transform(req);
-                res = runSingleRequest(req, nextTransformed);
+                val nextTransformed = requestTransformer.transform(req, postmanVariablePool);
+                res = runSingleRequest(req, nextTransformed, eventsList);
                 listOfResponses.add(res);
             }
+            val finalResponse = listOfResponses.get(0);
+            finalResponse.setResponseBodyFromPaginatedRequest(listOfResponses);
+            runPostRequestEvents(eventsList.stream().filter(postmanEvent -> postmanEvent.getListen() == "test").toList(), finalResponse);
             return listOfResponses;
         }
 
@@ -107,8 +124,8 @@ public class PostVan<HttpRequestArgs, PostVanHttpRes extends PostVanHttpResponse
             val totalCount = res.getCount(pagination.getTotalCountProperty());
             while ((listOfResponses.size() * pagination.getOffsetSize()) <= totalCount) {
                 req = buildCountRequest(req, Map.entry(pagination.getOffsetProperty(), count), Map.entry(pagination.getPageSizeProperty(), pagination.getPageSize()));
-                val nextTransformed = requestTransformer.transform(req);
-                res = runSingleRequest(req, nextTransformed);
+                val nextTransformed = requestTransformer.transform(req, postmanVariablePool);
+                res = runSingleRequest(req, nextTransformed, eventsList);
                 count += pagination.getOffsetSize();
                 listOfResponses.add(res);
             }

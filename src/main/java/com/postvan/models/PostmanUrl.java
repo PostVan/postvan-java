@@ -16,4 +16,8 @@ public class PostmanUrl extends RuntimeSafePOJO {
     public void addQueryParameter(final PostManQueryParameter parameter) {
         this.queryParameters.put(parameter.getKey(), parameter);
     }
+
+    public void replaceVariables(final PostmanVariablePool postmanVariablePool) {
+//        if (POSTMAN_VARIABLE_REGEX)
+    }
 }

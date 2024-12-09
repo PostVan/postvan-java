@@ -1,8 +1,10 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.postvan.PostVan;
+import com.postvan.Utils;
 import com.postvan.models.PostVanHttpJacksonResponse;
 import com.postvan.models.PostmanCollection;
 
+import com.postvan.models.PostmanVariablePool;
 import lombok.val;
 
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,14 @@ class PostvanTest {
         assertions.forEach((eater) -> eater.accept(responses)); // waka waka waka, lol
     }
 
+    @ParameterizedTest
+    @MethodSource("getRegexArguments")
+    public void testReplaceRegex(final String testInput, final PostmanVariablePool postmanVariablePool, final String expectedResult) {
+        val match = Utils.replaceVariables(testInput, postmanVariablePool);
+        assertNotNull(match);
+        assertEquals(match, expectedResult);
+    }
+
     private String getStringFromResourceFile(final String fileName) throws Exception {
         val sourceDir = System.getProperty("user.dir");
         val testResourceDir = "/src/test/resources/";
@@ -72,7 +82,24 @@ class PostvanTest {
                 Arguments.of("/CertAuth_PFX.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
                     assertEquals(200, response.getStatusCode());
                     System.out.println(response.getResponseBody());
+                }))),
+                Arguments.of("/HTTPBin_JS_Test.postman_collection.json", List.of((Consumer<List<PostVanHttpJacksonResponse>>) (list) -> list.forEach(response -> {
+
                 })))
+        );
+    }
+
+    public static Stream<Arguments> getRegexArguments() {
+        val postmanPool = new PostmanVariablePool();
+        postmanPool.set("username", "burt");
+        postmanPool.set("password", "reynolds");
+        return Stream.of(
+                Arguments.of(
+                        "{{username}}",
+                        postmanPool,
+                        "burt"
+                ),
+                Arguments.of("https://httpbin.org/basic-auth/{{username}}/{{password}}", postmanPool, "https://httpbin.org/basic-auth/burt/reynolds")
         );
     }
 }
