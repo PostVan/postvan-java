@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PostvanTest {
+class PostVanTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 

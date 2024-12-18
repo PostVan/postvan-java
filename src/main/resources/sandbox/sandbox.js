@@ -1,15 +1,34 @@
-const Sandbox = require('postman-sandbox'),
-    context;
-
-Sandbox.createContext(function (err, ctx) {
-    if (err) {
-        return console.error(err);
+let totalTests = 0;
+let passedTests = 0;
+let failedTests = 0;
+class PostVanAPI {
+  constructor(expector, variablePool, response) {
+    this.expect = expector.expect;
+    this.variables = variablePool;
+    this.collectionVariables = variablePool.collectionVariables;
+    this.response = response;
+  }
+  test(testName, testFunc) {
+    // TODO: log in a map the testName and pass/fail result.
+    try {
+      totalTests++;
+      testFunc();
+      passedTests++;
+    } catch (err) {
+      failedTests++;
+      console.error(err);
     }
+  }
+}
 
-    ctx.execute(testScript, {}, {}, function (err) {
-        if (err) {
-            return console.error(err);
-        }
-        console.log('executed')
-    });
-});
+ function main() {
+  const pm = new PostVanAPI(expector, variablePool, response);
+    try {
+      /* <REPLACE_ME_WITH_CODE> */
+      return {totalTests, passedTests, failedTests};
+    } catch (err) {
+      return {totalTests, passedTests, failedTests};
+    }
+}
+
+main();

@@ -55,6 +55,7 @@
 						"exec": [
 							"const responseJson = pm.response.json();",
 							"pm.test(\"should have request ID from previous request\", () => {",
+							"    console.log('balls');",
 							"    pm.expect(responseJson).to.not.be.undefined;",
 							"    pm.expect(responseJson.form.amzn_trace_id).to.not.be.undefined;",
 							"})"
